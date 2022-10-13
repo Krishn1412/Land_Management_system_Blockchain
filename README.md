@@ -14,3 +14,5 @@ we can create a property class and in that we can define a vector which will sto
 we will use the blocks only for storing the transactions and not the property which we intended to do.
 
 create a class for buyer, seller, property and validator
+
+check out graphene
