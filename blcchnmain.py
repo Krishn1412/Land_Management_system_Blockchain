@@ -15,12 +15,9 @@ class Block:
         self.data=data
         self.difficulty=difficulty
         self.nonce=nonce
-class Blockchain:
-    def __init__(self,index,hash,previousHash,timestamp,data,difficulty,nonce):
-        self.index=index
-        self.hash=hash
-        self.previousHash=previousHash
-        self.timestamp=timestamp
-        self.data=data
-        self.difficulty=difficulty
-        self.nonce=nonce
+class BlockChain(object):
+    def __init__(self):
+        self.chain = []
+        self.current_transactions = []
+        self.nodes = set()
+        self.new_block(previous_hash=1, proof=100)
