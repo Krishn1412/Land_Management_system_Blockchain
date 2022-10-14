@@ -23,12 +23,12 @@ class Block:
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 class Property:
-    def __init__(self,currentOwner,id,PropertyName,PreviousTransacs,size):
+    def __init__(self,currentOwner,id,PropertyName,PreviousTransacs,sizep):
         self.currentOwner=currentOwner
         self.id=id
         self.PropertyName=PropertyName
         self.PreviousTransacs=PreviousTransacs
-        self.size=size
+        self.sizep=sizep
     def updateOwner(self,NewOwner,Transac):
         self.previousOwners.append(self.currentOwner)
         self.currentOwner=NewOwner
