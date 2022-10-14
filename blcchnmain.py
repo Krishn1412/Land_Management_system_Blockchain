@@ -79,4 +79,7 @@ class person:
         self.prop=prop
 
 class validator:
-
+    # def __init__(self,person):
+        
+    def validate_Transaction(Transaction):
+        Transaction.sellar
