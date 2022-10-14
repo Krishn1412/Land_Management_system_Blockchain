@@ -1,5 +1,7 @@
-import hashlib,binascii,base64,json,requests,random,datetime
 from hashlib import sha256
+import time
+import json
+mp = {}
 class Transaction:
     def __init__(self, buyer_name,seller_name,prop_name,amount,timestamp):
         self.buyer_name=buyer_name
@@ -54,59 +56,9 @@ class Blockchain:
         Block.hash=proof
         self.chain_array.append(Block)
         return True
-    
-    @staticmethod
-    def proof_of_work(block):
-        block.nonce=0
+
         
-        computed_hash=block.computeHash()
-        while not computed_hash.startswith('0' * Blockchain.difficulty):
-            block.nonce += 1                       #change nonce until hash of new block meets requirements
-            computed_hash = block.computeHash()
 
-        return computed_hash
-
-    @classmethod
-    def is_valid_proof(cls, block, block_hash):
-        return (block_hash.startswith('0' * Blockchain.difficulty) and  #if starts woth x zeros
-                block_hash == block.computeHash())    #if hash is equal to computed hash of data+nonce
-        
-    @classmethod
-    def check_chain_validity(cls, chain_array):
-        result = True
-        previous_hash = "0"
-
-        for block in chain_array:
-            block_hash = block.hash
-            # remove the hash field to recompute the hash again
-            # using `compute_hash` method.
-            delattr(block, "hash")
-
-            if not cls.is_valid_proof(block, block_hash) or previous_hash != block.prev_hash:
-                result = False
-                break
-
-            block.hash, previous_hash = block_hash, block_hash
-
-        return result
-    def mine(self,transacs):    # sourcery skip: use-fstring-for-concatenation
-        hashes_List_Of_Transactions=[]
-        for transac in transacs:
-            to_hash=transac.getTransactionData()
-            hashes_List_Of_Transactions.append(sha256(to_hash.encode()).hexdigest())     #add hash of all transaction into a list
-            mp[transac.prop_name].updateOwner(transac.buyer_name,to_hash)                #update property ownerships
-
-        #now we find merkle root
-        merkleRoot=CalculateMerkleRoot(hashes_List_Of_Transactions)
-        
-        last_block = self.last_block
-        new_block = Block(prev_hash=last_block.hash,
-                          merkleRootHash=merkleRoot,
-                          timestamp=time.time())
-
-        proof = self.proof_of_work(new_block)   #get proof by solving the puzzle
-        self.add_block(new_block, proof)        # send proof to add the new block
-        return True   
 def CalculateMerkleRoot(hashes_List_Of_Transactions):
     tempList=hashes_List_Of_Transactions
     while len(tempList)>1:
@@ -118,3 +70,7 @@ def CalculateMerkleRoot(hashes_List_Of_Transactions):
             tmp.append(sha256(hashPair.encode()).hexdigest())
         tempList=tmp
     return tempList[0]
+class person:
+    def __init__(self,name,property):
+
+
