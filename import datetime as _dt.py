@@ -35,7 +35,6 @@ class Blockchain:
             "proof": proof,
             "previous_hash": previous_hash,
         }
-
         return block
 
     def get_previous_block(self) -> dict:
@@ -98,3 +97,5 @@ class Blockchain:
             block_index += 1
 
         return True
+    
+cls=Blockchain()
