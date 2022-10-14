@@ -4,10 +4,10 @@ import time
 import json
 mp = {}
 class Transaction:
-    def __init__(self, buyer_name,seller_name,prop_name,amount,timestamp):
+    def __init__(self, buyer_name,seller_name,prop_obj,amount,timestamp):
         self.buyer_name=buyer_name
         self.seller_name=seller_name
-        self.prop_name=prop_name
+        self.prop_obj=prop_obj
         self.amount=amount
         self.timestamp=timestamp
         
@@ -24,9 +24,9 @@ class Block:
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 class Property:
-    def __init__(self,currentOwner,previousOwners,PropertyName,PreviousTransacs):
+    def __init__(self,currentOwner,id,PropertyName,PreviousTransacs):
         self.currentOwner=currentOwner
-        self.previousOwners=previousOwners
+        self.id=id
         self.PropertyName=PropertyName
         self.PreviousTransacs=PreviousTransacs
     def updateOwner(self,NewOwner,Transac):
@@ -43,13 +43,7 @@ class Blockchain:
     @property  
     def last_block(self):
         return self.chain_array[-1]
-    def add_block(self,Block,proof):
-        prev_hash=self.last_block.hash 
-        if(prev_hash != Block.prev_hash): 
-            return False
-        if not Blockchain.is_valid_proof(Block,proof):  
-            return False
-        Block.hash=proof
+    def add_block(self,Block):
         self.chain_array.append(Block)
         return True     
 def CalculateMerkleRoot(hashes_List_Of_Transactions):
@@ -73,13 +67,57 @@ def winner(self):
     st.sort(key = lambda x: x[1])
     return st[0][0]
 class person:
-    def __init__(self,name,id,prop):
-        self.name=name
+    def __init__(self,id,name,prop):
         self.id=id
+        self.name=name
         self.prop=prop
+    
+def validate_transaction(transaction):
+    winn=winner()
+    t=transaction.prop_obj
+    r=t.currentOwner
+    if r!=transaction.seller_name:
+        return False
+    else:
+        return True
+def validate_chain(self,chain_array):
+    _prevBlock = ''
+    for block in chain_array:
+        if self.is_block_valid(block, prevBlock=_prevBlock):
+            _prevBlock = block
+        else:
+            return False
+        return True  
+def validate_block(transaction,chain_array):
+    if validate_transaction(transaction) and validate_chain(chain_array):
+        return True
+    return False
 
-class validator:
-    # def __init__(self,person):
-        
-    def validate_Transaction(Transaction):
-        Transaction.sellar
+def main():
+    no_of_owners=input("Enter the number of owners: ")
+    arr_of_people=[]
+    arr_of_prop=[]
+    for i in range(no_of_owners):
+        list_of_prop=[]
+        id=input("Enter ID of person: ")
+        name=input("Enter name of person: ")
+        num_of_prop=input("Enter number of property: ")
+        for j in range(num_of_prop):
+            a=input("Enter property ID: ")
+            list_of_prop.append(a)
+        per =person(id,name,list_of_prop)
+        arr_of_people.append(per)
+    no_of_property=input("Enter number of property: ")
+    for i in range(no_of_property):
+        list_of_prevtrans=[]
+        id=input("Enter ID of property: ")
+        name=input("Enter property name: ")
+        curr_owner=input("Enter the name of curr owner: ")
+        prop=property(curr_owner,id,name,list_of_prevtrans)
+        arr_of_prop.append(prop)
+    
+
+
+
+
+
