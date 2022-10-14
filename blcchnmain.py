@@ -38,27 +38,19 @@ class Blockchain:
     def create_genesis(self):
         genesis_block=Block("-1","0",time.time())
         genesis_block.hash=Block.computeHash(genesis_block)
-        self.chain_array.append(genesis_block)
-        
+        self.chain_array.append(genesis_block)   
     @property  
     def last_block(self):
         return self.chain_array[-1]
-    
     def add_block(self,Block,proof):
-        prev_hash=self.last_block.hash   # hash of previous block
-        
-        if(prev_hash != Block.prev_hash):   #last block ka hash is not equal to previous hash of this current block 
+        prev_hash=self.last_block.hash 
+        if(prev_hash != Block.prev_hash): 
             return False
-        
-        if not Blockchain.is_valid_proof(Block,proof):  #check validity of proof hash
+        if not Blockchain.is_valid_proof(Block,proof):  
             return False
-        
         Block.hash=proof
         self.chain_array.append(Block)
-        return True
-
-        
-
+        return True     
 def CalculateMerkleRoot(hashes_List_Of_Transactions):
     tempList=hashes_List_Of_Transactions
     while len(tempList)>1:
