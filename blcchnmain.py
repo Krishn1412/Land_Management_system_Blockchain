@@ -1,4 +1,5 @@
 from hashlib import sha256
+import collections
 import time
 import json
 mp = {}
@@ -61,8 +62,21 @@ def CalculateMerkleRoot(hashes_List_Of_Transactions):
             hashPair=tempList[i]+tempList[i+1]       #A+B
             tmp.append(sha256(hashPair.encode()).hexdigest())
         tempList=tmp
-    return tempList[0]
+    return tempList[0]        
+def winner(self):
+    st=[]
+    li = [5,7,9,1,3,4,6,7,8,4]
+    for i in range(10):
+        r=input()
+        t=((r*li[i])/100)
+        st.append([li[i],t])
+    st.sort(key = lambda x: x[1])
+    return st[0][0]
 class person:
-    def __init__(self,name,property):
+    def __init__(self,name,id,prop):
+        self.name=name
+        self.id=id
+        self.prop=prop
 
+class validator:
 
