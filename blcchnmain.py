@@ -107,6 +107,7 @@ def owner_adding(arr_of_people,no_of_owners):
         mph[id]=per
         arr_of_people.append(per)
 def prop_adding(arr_of_prop,no_of_property):
+    
     for i in range(no_of_property):
         list_of_prevtrans=[]
         id=int(input("Enter ID of property: "))
@@ -116,7 +117,9 @@ def prop_adding(arr_of_prop,no_of_property):
         prop=Property(mpp[curr_owner],id,name,list_of_prevtrans,size)
         mpp[id]=prop
         arr_of_prop.append(prop)
+        
 def trans_adding(arr_of_trans,trans,arr_of_people,BC):
+    
     print("To begin with transactions we first implement the proof of stake algorithm")
     winner_of_round=winner(arr_of_people)
     leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
@@ -131,10 +134,12 @@ def trans_adding(arr_of_trans,trans,arr_of_people,BC):
         if Trans_valid==False:
             print("Transaction is invalid, so the process has been terminated")
             break
-        arr_of_trans.append(trans)
+        arr_of_trans.append(transac)
         trans-=1 
     last_blc=BC.last_block()
+    
     # chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    
     chain_true=True
     if chain_true:
         hash_of_trans=[]
@@ -162,62 +167,52 @@ def main():
     no_of_property=int(input("Enter number of property: "))
     prop_adding(arr_of_prop,no_of_property) 
     
-    trans=int(input("Enter the number of transactions: "))
-    trans_adding(arr_of_trans,trans,arr_of_people,BC)    
+      
         
-    
-    print("To begin with transactions we first implement the proof of stake algorithm")
-    winner_of_round=winner(arr_of_people)
-    leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
-    print(leader_of_chain.name)
-    
-    
-    trans1=int(input("Enter the number of transactions: "))
-    arr_of_trans=[]
-    f=0
-    while trans1>0:
-        Buyer=int(input("Enter the buyer's id: "))
-        seller=int(input("Enter seller's id: "))
-        id_prop=int(input("Enter property id: "))
-        amount=int(input("Enter the amount: "))
-        trans=Transaction(mph[Buyer],mph[seller],mpp[id_prop],amount)
-        Trans_valid=leader_of_chain.validate_transaction(trans)
-        if Trans_valid==False:
-            f=1
-            print("Transaction is invalid, so the process has been terminated")
-            break
-        arr_of_trans.append(trans)
-        trans1-=1
-        
-    last_blc=BC.last_block()
-    # chain_true=leader_of_chain.validate_chain(BC.chain_array)
-    chain_true=True
-    if chain_true:
-        hash_of_trans=[]
-        for transac in arr_of_trans:
-            to_hash=transac.getTransactionData()
-            hash_of_trans.append(sha256(to_hash.encode()).hexdigest())
-            mpp[transac.prop_obj.id].updateOwner(transac.buyer,transac)
-            print(transac.prop_obj.id)
-            
-        merkle_root=CalculateMerkleRoot(hash_of_trans) 
-        newBlock=Block(last_blc.hash,merkle_root,time.time())
-        BC.chain_array.append(newBlock)
         
     for i in range(len(arr_of_prop)):
         print(arr_of_prop[i].currentOwner.name)
 
    
-    prop_id=int(input("Please Enter the Property ID whose previous transactions you want to view: "))
-    if mpp.get(prop_id) is None:
-        print("\nProperty named does NOT exist.\n")
-    elif len(mpp[prop_id].PreviousTransacs)==0:
-        print("No transactions have occured for this given property")
-    else:
-        for transac in mpp[prop_id].PreviousTransacs:
-            print(transac.buyer.name+" bought this from "+transac.seller.name+" for "+str(transac.amount))
+    
 
 
+    
+    
+    run=True
+    while run:
+        print("Enter 1 for : Add new Transactions \nEnter -1 to exit \nEnter 2 to add new property\nEnter 3 to check Transaction History of a Property\nEnter 4 to check block structure")
+        val=int(input())
+        if val == -1:
+            run=False
+        elif val == 1:
+            trans=int(input("Enter the number of transactions: "))
+            trans_adding(arr_of_trans,trans,arr_of_people,BC)  
+        elif val == 2:
+            print("\nPlease Enter the following in order: 1.Property Name 2.Owner Name\n")
+            prop_name=input()
+            owner=input()
+            prop_obj=Property(currentOwner=owner,
+                              previousOwners=[],
+                              PropertyName=prop_name,
+                              PreviousTransacs=[])
+            mp[prop_name]=prop_obj          #map new property name to its newly crated object
+            print("Property Registered Sucessfully! \n")
+        elif val == 3:
+            prop_id=int(input("Please Enter the Property ID whose previous transactions you want to view: "))
+            if mpp.get(prop_id) is None:
+                print("\nProperty named does NOT exist.\n")
+            elif len(mpp[prop_id].PreviousTransacs)==0:
+                print("No transactions have occured for this given property")
+            else:
+                for transac in mpp[prop_id].PreviousTransacs:
+                    print(transac.buyer.name+" bought this from "+transac.seller.name+" for "+str(transac.amount))
+        elif val == 4:
+            for block in BC.chain_array:
+                print("previous hash is ",block.prev_hash," current block hash is ",block.hash," merke root is ",block.merkleRootHash,"\n")
+    
+    
+    
     
 if __name__=="__main__":
     main()
