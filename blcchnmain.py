@@ -14,8 +14,7 @@ class Transaction:
     def getTransactionData(self): 
         return self.buyer_name +" "+ self.seller_name +" "+self.prop_name +" "+ str(self.amount)
 class Block:
-    def __init__ (self,prev_hash,merkleRootHash,timestamp,nonce=0):
-        self.nonce=nonce
+    def __init__ (self,prev_hash,merkleRootHash,timestamp):
         self.prev_hash=prev_hash
         self.merkleRootHash=merkleRootHash
         self.timestamp=timestamp
