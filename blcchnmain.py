@@ -94,6 +94,8 @@ class validator(person):
 
 def main():
     BC=Blockchain()
+    
+    
     no_of_owners=int(input("Enter the number of owners: "))
     arr_of_people=[]
     arr_of_prop=[]
@@ -110,6 +112,8 @@ def main():
         per =person(id,name,list_of_prop,total)
         mph[id]=per
         arr_of_people.append(per)
+        
+        
     no_of_property=int(input("Enter number of property: "))
     for i in range(no_of_property):
         list_of_prevtrans=[]
@@ -117,28 +121,34 @@ def main():
         name=input("Enter property name: ")
         curr_owner=int(input("Enter the id of curr owner: "))
         size=int(input("Enter size of property: "))
-        prop=Property(mpp[curr_owner],id,name,list_of_prevtrans,size)
+        prop=Property(mph[curr_owner],id,name,list_of_prevtrans,size)
         mpp[id]=prop
         arr_of_prop.append(prop)
     print("To begin with transactions we first implement the proof of stake algorithm")
     winner_of_round=winner(arr_of_people)
     leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
     print(leader_of_chain.name)
+    
+    
     trans=int(input("Enter the number of transactions: "))
     arr_of_trans=[]
+    f=0
     while trans>0:
         Buyer=input("Enter the buyer's name: ")
         seller=input("Enter seller's name: ")
         id_prop=int(input("Enter property id: "))
-        amount=int(input("Enter the amount"))
+        amount=int(input("Enter the amount: "))
         trans=Transaction(Buyer,seller,mpp[id_prop],amount)
+        print(trans.seller_name)
+        print(trans.buyer_name)
         Trans_valid=leader_of_chain.validate_transaction(trans)
         if Trans_valid==False:
+            f=1
             print("Transaction is invalid, so the process has been terminated")
             break
         arr_of_trans.append(trans)
         trans-=1
-    
+        
     merkle_root=CalculateMerkleRoot(arr_of_trans)
     last_blc=BC.last_block()
     chain_true=leader_of_chain.validate_chain(BC.chain_array)
@@ -148,7 +158,9 @@ def main():
         newBlock=Block(last_blc.hash,merkle_root,time.time())
         BC.chain_array.append(newBlock)
         block_true=leader_of_chain.validate_chain(BC.chain_array)
-    
+        
+    for i in range(len(arr_of_prop)):
+        print(arr_of_prop[i].currentOwner)
 
     # run=True
     # while run:
