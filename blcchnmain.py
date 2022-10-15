@@ -174,14 +174,9 @@ def main():
         print(arr_of_prop[i].currentOwner.name)
 
    
-    
-
-
-    
-    
     run=True
     while run:
-        print("Enter 1 for : Add new Transactions \nEnter -1 to exit \nEnter 2 to add new property\nEnter 3 to check Transaction History of a Property\nEnter 4 to check block structure")
+        print("Enter 1 for : Add new Transactions \nEnter -1 to exit \nEnter 2 to add new person for transaction\nEnter 3 to check Transaction History of a Property\nEnter 4 to check block structure")
         val=int(input())
         if val == -1:
             run=False
@@ -189,14 +184,8 @@ def main():
             trans=int(input("Enter the number of transactions: "))
             trans_adding(arr_of_trans,trans,arr_of_people,BC)  
         elif val == 2:
-            print("\nPlease Enter the following in order: 1.Property Name 2.Owner Name\n")
-            prop_name=input()
-            owner=input()
-            prop_obj=Property(currentOwner=owner,
-                              previousOwners=[],
-                              PropertyName=prop_name,
-                              PreviousTransacs=[])
-            mp[prop_name]=prop_obj          #map new property name to its newly crated object
+            no_of_owners=int(input("Enter the number of people to be added: "))
+            owner_adding(arr_of_people,no_of_owners)        
             print("Property Registered Sucessfully! \n")
         elif val == 3:
             prop_id=int(input("Please Enter the Property ID whose previous transactions you want to view: "))
