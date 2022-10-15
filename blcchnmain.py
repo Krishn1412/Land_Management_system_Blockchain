@@ -2,8 +2,7 @@ from hashlib import sha256
 import collections
 import time
 import json
-mpp = {}
-mph={}
+mp = {}
 class Transaction:
     def __init__(self, buyer_name,seller_name,prop_obj,amount):
         self.buyer_name=buyer_name
@@ -40,7 +39,6 @@ class Blockchain:
         genesis_block=Block("-1","0",time.time())
         genesis_block.hash=Block.computeHash(genesis_block)
         self.chain_array.append(genesis_block)   
-    @property  
     def last_block(self):
         return self.chain_array[-1]
     def add_block(self,Block):
@@ -108,31 +106,34 @@ def main():
             total+=int(input("Enter property size: "))
             list_of_prop.append(a)
         per =person(id,name,list_of_prop,total)
-        mph[id]=per
         arr_of_people.append(per)
     no_of_property=int(input("Enter number of property: "))
     for i in range(no_of_property):
         list_of_prevtrans=[]
         id=int(input("Enter ID of property: "))
         name=input("Enter property name: ")
-        curr_owner=int(input("Enter the id of curr owner: "))
+        curr_owner=input("Enter the name of curr owner: ")
         size=int(input("Enter size of property: "))
-        prop=Property(mph[curr_owner],id,name,list_of_prevtrans,size)
-        mpp[id]=prop
+        prop=property(curr_owner,id,name,list_of_prevtrans,size)
+        mp[id]=prop
         arr_of_prop.append(prop)
     print("To begin with transactions we first implement the proof of stake algorithm")
     winner_of_round=winner(arr_of_people)
     leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
     print(leader_of_chain.name)
-    Buyer=input("Enter the buyer's name: ")
-    seller=input("Enter seller's name: ")
-    id_prop=int(input("Enter property id: "))
-    amount=int(input("Enter the amount: "))
-    
-    trans=Transaction(Buyer,seller,mpp[id_prop],amount)
+    trans=int(input("Enter the number of transactions: "))
+    arr_of_trans=[]
+    while trans>0:
+        Buyer=input("Enter the buyer's name: ")
+        seller=input("Enter seller's name: ")
+        id_prop=int(input("Enter property id: "))
+        amount=int(input("Enter the amount"))
+        trans=Transaction(Buyer,seller,mp[id_prop],amount)
+        arr_of_trans.append(trans)
+        trans-=1
     Trans_valid=leader_of_chain.validate_transaction(trans)
     if Trans_valid:
-        print("legal hai bhai")
+        print("Legal")
     else:
         print("The transaction is illegal")
     # run=True
