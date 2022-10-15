@@ -14,10 +14,11 @@ class Transaction:
     def getTransactionData(self): 
         return self.buyer.name +" "+ self.seller.name +" "+self.prop_obj.PropertyName +" "+ str(self.amount)
 class Block:
-    def __init__ (self,prev_hash,merkleRootHash,timestamp):
+    def __init__ (self,prev_hash,merkleRootHash,timestamp,hash):
         self.prev_hash=prev_hash
         self.merkleRootHash=merkleRootHash
         self.timestamp=timestamp
+        self.hash=hash
         
     def computeHash(self):
         block_string = json.dumps(self.__dict__, sort_keys=True)
@@ -36,7 +37,9 @@ class Blockchain:
     def __init__(self):
         self.chain_array=[]
     def create_genesis(self):
-        genesis_block=Block("-1","0",time.time())
+        to_hash1=str("0")+str("-1")+str(time.time())
+        hashblock= sha256(to_hash1.encode()).hexdigest()
+        genesis_block=Block("-1","0",time.time(),hashblock)
         genesis_block.hash=Block.computeHash(genesis_block)
         self.chain_array.append(genesis_block)   
     def last_block(self):
@@ -70,6 +73,14 @@ class person:
         self.name=name
         self.prop=prop
         self.total=total
+    
+    def AddTotal(self,NewProp):
+        self.prop.append(NewProp)
+        self.total+=NewProp.sizep
+    
+    def SubTotal(self,NewProp):
+        self.total-=NewProp.sizep
+        
 class validator(person):
     def validate_transaction(self,transaction):
         t=transaction.prop_obj
@@ -124,34 +135,40 @@ def trans_adding(arr_of_trans,trans,arr_of_people,BC):
     winner_of_round=winner(arr_of_people)
     leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
     print(leader_of_chain.name)
+    f=0
     while trans:
-        Buyer=input("Enter the buyer's name: ")
-        seller=input("Enter seller's name: ")
+        Buyer=int(input("Enter the buyer's id: "))
+        seller=int(input("Enter seller's id: "))
         id_prop=int(input("Enter property id: "))
-        amount=int(input("Enter the amount"))
-        transac=Transaction(Buyer,seller,mpp[id_prop],amount)
+        amount=int(input("Enter the amount: "))
+        transac=Transaction(mph[Buyer],mph[seller],mpp[id_prop],amount)
         Trans_valid=leader_of_chain.validate_transaction(transac)
         if Trans_valid==False:
+            f=1
             print("Transaction is invalid, so the process has been terminated")
             break
         arr_of_trans.append(transac)
         trans-=1 
     last_blc=BC.last_block()
-    
+    print(last_blc.prev_hash)
     # chain_true=leader_of_chain.validate_chain(BC.chain_array)
-    
-    chain_true=True
-    if chain_true:
-        hash_of_trans=[]
-        for transac in arr_of_trans:
-            to_hash=transac.getTransactionData()
-            hash_of_trans.append(sha256(to_hash.encode()).hexdigest())
-            mpp[transac.prop_obj.id].updateOwner(transac.buyer_name,to_hash)
-            print(transac.prop_obj.id)
-        merkle_root=CalculateMerkleRoot(hash_of_trans)  
-        newBlock=Block(last_blc.hash,merkle_root,time.time())
-        BC.chain_array.append(newBlock)
-
+    if f==0:
+        chain_true=True
+        if chain_true:
+            hash_of_trans=[]
+            for transac in arr_of_trans:
+                to_hash=transac.getTransactionData()
+                hash_of_trans.append(sha256(to_hash.encode()).hexdigest())
+                mpp[transac.prop_obj.id].updateOwner(transac.buyer,transac)
+                transac.buyer.AddTotal(transac.prop_obj)
+                transac.seller.SubTotal(transac.prop_obj)
+                print(transac.prop_obj.id)
+                
+            merkle_root=CalculateMerkleRoot(hash_of_trans) 
+            to_hash1=str(merkle_root)+str(last_blc.hash)+str(time.time())
+            hashblock= sha256(to_hash1.encode()).hexdigest()
+            newBlock=Block(last_blc.hash,merkle_root,time.time(),hashblock)
+            BC.chain_array.append(newBlock)
 
 
 def main():
@@ -166,12 +183,6 @@ def main():
     
     no_of_property=int(input("Enter number of property: "))
     prop_adding(arr_of_prop,no_of_property) 
-    
-      
-        
-        
-    for i in range(len(arr_of_prop)):
-        print(arr_of_prop[i].currentOwner.name)
 
    
     run=True
@@ -186,7 +197,7 @@ def main():
         elif val == 2:
             no_of_owners=int(input("Enter the number of people to be added: "))
             owner_adding(arr_of_people,no_of_owners)        
-            print("Property Registered Sucessfully! \n")
+            print("People Registered Sucessfully! \n")
         elif val == 3:
             prop_id=int(input("Please Enter the Property ID whose previous transactions you want to view: "))
             if mpp.get(prop_id) is None:
