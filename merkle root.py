@@ -34,7 +34,14 @@ def CalculateMerkleRoot(hashes_List_Of_Transactions):
             tmp.append(sha256(hashPair.encode()).hexdigest())
         tempList=tmp
     return tempList[0]  
-     
+def validate_chain(chain_array):
+        _prevBlock = '0'
+        for block in chain_array:
+            if block.prev_hash==_prevBlock:
+                _prevBlock = block.hash
+            else:
+                return False
+            return True  
 if __name__=='__main__':
     import uuid
     file_hashes=[]

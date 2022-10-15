@@ -5,14 +5,14 @@ import json
 mpp = {}
 mph = {}
 class Transaction:
-    def __init__(self, buyer_name,seller_name,prop_obj,amount):
-        self.buyer_name=buyer_name
-        self.seller_name=seller_name
+    def __init__(self, buyer,seller,prop_obj,amount):
+        self.buyer=buyer
+        self.seller=seller
         self.prop_obj=prop_obj
         self.amount=amount
         
     def getTransactionData(self): 
-        return self.buyer_name +" "+ self.seller_name +" "+self.prop_name +" "+ str(self.amount)
+        return self.buyer.name +" "+ self.seller.name +" "+self.prop_obj.PropertyName +" "+ str(self.amount)
 class Block:
     def __init__ (self,prev_hash,merkleRootHash,timestamp):
         self.prev_hash=prev_hash
@@ -30,7 +30,6 @@ class Property:
         self.PreviousTransacs=PreviousTransacs
         self.sizep=sizep
     def updateOwner(self,NewOwner,Transac):
-        self.previousOwners.append(self.currentOwner)
         self.currentOwner=NewOwner
         self.PreviousTransacs.append(Transac)
 class Blockchain:    
@@ -74,16 +73,16 @@ class person:
 class validator(person):
     def validate_transaction(self,transaction):
         t=transaction.prop_obj
-        r=t.currentOwner
-        if r!=transaction.seller_name:
+        r=t.currentOwner.name
+        if r!=transaction.seller.name:
             return False
         else:
             return True
     def validate_chain(self,chain_array):
-        _prevBlock = ''
+        _prevBlock = "0"
         for block in chain_array:
-            if self.is_block_valid(block, prevBlock=_prevBlock):
-                _prevBlock = block
+            if block.prev_hash==_prevBlock:
+                _prevBlock = block.hash
             else:
                 return False
             return True  
@@ -92,13 +91,8 @@ class validator(person):
             return True
         return False
 
-def main():
-    BC=Blockchain()
-    
-    
-    no_of_owners=int(input("Enter the number of owners: "))
-    arr_of_people=[]
-    arr_of_prop=[]
+
+def owner_adding(arr_of_people,no_of_owners):
     for i in range(no_of_owners):
         list_of_prop=[]
         id=int(input("Enter ID of person: "))
@@ -112,101 +106,117 @@ def main():
         per =person(id,name,list_of_prop,total)
         mph[id]=per
         arr_of_people.append(per)
-        
-        
-    no_of_property=int(input("Enter number of property: "))
+def prop_adding(arr_of_prop,no_of_property):
     for i in range(no_of_property):
         list_of_prevtrans=[]
         id=int(input("Enter ID of property: "))
         name=input("Enter property name: ")
         curr_owner=int(input("Enter the id of curr owner: "))
         size=int(input("Enter size of property: "))
-        prop=Property(mph[curr_owner],id,name,list_of_prevtrans,size)
+        prop=Property(mpp[curr_owner],id,name,list_of_prevtrans,size)
         mpp[id]=prop
         arr_of_prop.append(prop)
+def trans_adding(arr_of_trans,trans,arr_of_people,BC):
+    print("To begin with transactions we first implement the proof of stake algorithm")
+    winner_of_round=winner(arr_of_people)
+    leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
+    print(leader_of_chain.name)
+    while trans:
+        Buyer=input("Enter the buyer's name: ")
+        seller=input("Enter seller's name: ")
+        id_prop=int(input("Enter property id: "))
+        amount=int(input("Enter the amount"))
+        transac=Transaction(Buyer,seller,mpp[id_prop],amount)
+        Trans_valid=leader_of_chain.validate_transaction(transac)
+        if Trans_valid==False:
+            print("Transaction is invalid, so the process has been terminated")
+            break
+        arr_of_trans.append(trans)
+        trans-=1 
+    last_blc=BC.last_block()
+    # chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    chain_true=True
+    if chain_true:
+        hash_of_trans=[]
+        for transac in arr_of_trans:
+            to_hash=transac.getTransactionData()
+            hash_of_trans.append(sha256(to_hash.encode()).hexdigest())
+            mpp[transac.prop_obj.id].updateOwner(transac.buyer_name,to_hash)
+            print(transac.prop_obj.id)
+        merkle_root=CalculateMerkleRoot(hash_of_trans)  
+        newBlock=Block(last_blc.hash,merkle_root,time.time())
+        BC.chain_array.append(newBlock)
+
+
+
+def main():
+    BC=Blockchain()
+    BC.create_genesis()
+    arr_of_people=[]
+    arr_of_prop=[]
+    arr_of_trans=[]
+    
+    no_of_owners=int(input("Enter the number of owners: "))
+    owner_adding(arr_of_people,no_of_owners)
+    
+    no_of_property=int(input("Enter number of property: "))
+    prop_adding(arr_of_prop,no_of_property) 
+    
+    trans=int(input("Enter the number of transactions: "))
+    trans_adding(arr_of_trans,trans,arr_of_people,BC)    
+        
+    
     print("To begin with transactions we first implement the proof of stake algorithm")
     winner_of_round=winner(arr_of_people)
     leader_of_chain=validator(winner_of_round.id,winner_of_round.name,winner_of_round.prop,winner_of_round.total)
     print(leader_of_chain.name)
     
     
-    trans=int(input("Enter the number of transactions: "))
+    trans1=int(input("Enter the number of transactions: "))
     arr_of_trans=[]
     f=0
-    while trans>0:
-        Buyer=input("Enter the buyer's name: ")
-        seller=input("Enter seller's name: ")
+    while trans1>0:
+        Buyer=int(input("Enter the buyer's id: "))
+        seller=int(input("Enter seller's id: "))
         id_prop=int(input("Enter property id: "))
         amount=int(input("Enter the amount: "))
-        trans=Transaction(Buyer,seller,mpp[id_prop],amount)
-        print(trans.seller_name)
-        print(trans.buyer_name)
+        trans=Transaction(mph[Buyer],mph[seller],mpp[id_prop],amount)
         Trans_valid=leader_of_chain.validate_transaction(trans)
         if Trans_valid==False:
             f=1
             print("Transaction is invalid, so the process has been terminated")
             break
         arr_of_trans.append(trans)
-        trans-=1
+        trans1-=1
         
-    merkle_root=CalculateMerkleRoot(arr_of_trans)
     last_blc=BC.last_block()
-    chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    # chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    chain_true=True
     if chain_true:
-        for i in range(len(arr_of_trans)):
-            Property.updateOwner(arr_of_trans[i].buyer_name,arr_of_trans[i])
+        hash_of_trans=[]
+        for transac in arr_of_trans:
+            to_hash=transac.getTransactionData()
+            hash_of_trans.append(sha256(to_hash.encode()).hexdigest())
+            mpp[transac.prop_obj.id].updateOwner(transac.buyer,transac)
+            print(transac.prop_obj.id)
+            
+        merkle_root=CalculateMerkleRoot(hash_of_trans) 
         newBlock=Block(last_blc.hash,merkle_root,time.time())
         BC.chain_array.append(newBlock)
-        block_true=leader_of_chain.validate_chain(BC.chain_array)
         
     for i in range(len(arr_of_prop)):
-        print(arr_of_prop[i].currentOwner)
+        print(arr_of_prop[i].currentOwner.name)
 
-    # run=True
-    # while run:
-    #     print("Enter 1 for : Add new Transactions \nEnter -1 to exit \nEnter 2 to add new property\nEnter 3 to check Transaction History of a Property\nEnter 4 to check block structure")
-    #     val=int(input())
-    #     if val == -1:
-    #         run=False
-    #     elif val == 1:
-    #         print("To begin with transactions we first implement the proof of stake algorithm")
-    #         winner_of_round=winner(arr_of_people)
-    #         print("Enter number of Transactions occured")
-    #         val2=int(input())
-    #         transacs=[]
-    #         for i in range(val2):
-    #             print("Enter details of transaction :",i+1,"\n")
-    #             obj=take_Transac_Input()
-    #             if checkTransactionValidity(obj)==True:
-    #                 transacs.append(obj)
-    #                 print("Transaction Valid.\n")
-    #             else:
-    #                 print("\nTransaction: ",i+1," is Invalid, Hence Rejected and Not Added into Blockchain\n")
-    #         if transacs:
-    #             LMS.mine(transacs)
-    #     elif val == 2:
-    #         print("\nPlease Enter the following in order: 1.Property Name 2.Owner Name\n")
-    #         prop_name=input()
-    #         owner=input()
-    #         prop_obj=Property(currentOwner=owner,
-    #                           previousOwners=[],
-    #                           PropertyName=prop_name,
-    #                           PreviousTransacs=[])
-    #         mp[prop_name]=prop_obj          #map new property name to its newly crated object
-    #         print("Property Registered Sucessfully! \n")
-    #     elif val == 3:
-    #         print("Please Enter the Property Name whose previous transactions you want to view:")
-    #         prop_name=input()
-    #         if mp.get(prop_name) is None:
-    #             print("\nProperty named does NOT exist.\n")
-    #         elif len(mp[prop_name].PreviousTransacs)==0:
-    #             print("No transactions have occured for this given property")
-    #         else:
-    #             for transac in mp[prop_name].PreviousTransacs:
-    #                 print(transac)
-    #     elif val == 4:
-    #         for block in LMS.chain_array:
-    #             print("previous hash is ",block.prev_hash," current block hash is ",block.hash," merke root is ",block.merkleRootHash,"\n")
+   
+    prop_id=int(input("Please Enter the Property ID whose previous transactions you want to view: "))
+    if mpp.get(prop_id) is None:
+        print("\nProperty named does NOT exist.\n")
+    elif len(mpp[prop_id].PreviousTransacs)==0:
+        print("No transactions have occured for this given property")
+    else:
+        for transac in mpp[prop_id].PreviousTransacs:
+            print(transac.buyer.name+" bought this from "+transac.seller.name+" for "+str(transac.amount))
+
 
     
 if __name__=="__main__":
