@@ -93,6 +93,7 @@ class validator(person):
         return False
 
 def main():
+    BC=Blockchain()
     no_of_owners=int(input("Enter the number of owners: "))
     arr_of_people=[]
     arr_of_prop=[]
@@ -131,13 +132,24 @@ def main():
         id_prop=int(input("Enter property id: "))
         amount=int(input("Enter the amount"))
         trans=Transaction(Buyer,seller,mpp[id_prop],amount)
+        Trans_valid=leader_of_chain.validate_transaction(trans)
+        if Trans_valid==False:
+            print("Transaction is invalid, so the process has been terminated")
+            break
         arr_of_trans.append(trans)
         trans-=1
-    Trans_valid=leader_of_chain.validate_transaction(trans)
-    if Trans_valid:
-        print("Legal hai bhai")
-    else:
-        print("The transaction is illegal")
+    
+    merkle_root=CalculateMerkleRoot(arr_of_trans)
+    last_blc=BC.last_block()
+    chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    if chain_true:
+        for i in range(len(arr_of_trans)):
+            Property.updateOwner(arr_of_trans[i].buyer_name,arr_of_trans[i])
+        newBlock=Block(last_blc.hash,merkle_root,time.time())
+        BC.chain_array.append(newBlock)
+        block_true=leader_of_chain.validate_chain(BC.chain_array)
+    
+
     # run=True
     # while run:
     #     print("Enter 1 for : Add new Transactions \nEnter -1 to exit \nEnter 2 to add new property\nEnter 3 to check Transaction History of a Property\nEnter 4 to check block structure")
