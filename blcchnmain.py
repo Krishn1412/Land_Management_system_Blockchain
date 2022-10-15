@@ -114,7 +114,7 @@ def prop_adding(arr_of_prop,no_of_property):
         name=input("Enter property name: ")
         curr_owner=int(input("Enter the id of curr owner: "))
         size=int(input("Enter size of property: "))
-        prop=Property(mpp[curr_owner],id,name,list_of_prevtrans,size)
+        prop=Property(mph[curr_owner],id,name,list_of_prevtrans,size)
         mpp[id]=prop
         arr_of_prop.append(prop)
         
