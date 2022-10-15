@@ -90,7 +90,7 @@ class validator(person):
         else:
             return True
     def validate_chain(self,chain_array):
-        _prevBlock = "0"
+        _prevBlock = "-1"
         for block in chain_array:
             if block.prev_hash==_prevBlock:
                 _prevBlock = block.hash
@@ -150,10 +150,9 @@ def trans_adding(arr_of_trans,trans,arr_of_people,BC):
         arr_of_trans.append(transac)
         trans-=1 
     last_blc=BC.last_block()
-    print(last_blc.prev_hash)
-    # chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    chain_true=leader_of_chain.validate_chain(BC.chain_array)
+    print(chain_true)
     if f==0:
-        chain_true=True
         if chain_true:
             hash_of_trans=[]
             for transac in arr_of_trans:
